@@ -1,0 +1,11 @@
+---
+com_gritsos_api:
+  build: .
+  command: bundle exec rackup -p 9001
+  ports:
+    - "9001:9001"
+  environment:
+    #- RAILS_ENV=production
+    - RACK_ENV=production
+  env_file:
+    - .env
