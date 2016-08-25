@@ -7,6 +7,7 @@ require 'sinatra/base'
 require 'sinatra/json'
 
 require 'app/auth'
+require 'app/user'
 require 'app/model'
 
 module GritsosAPI
@@ -65,7 +66,6 @@ module GritsosAPI
     # Example
     #   GET /user?username=level_1_user&password=xxxx&user=level_0_user
     #   => {
-    #        id: <id>,
     #        username: level_0_user,
     #        level: 0,
     #        token: <token>
@@ -77,8 +77,8 @@ module GritsosAPI
       username = params['user'] || params['username']
       
       user =
-        if username.nil? || username == env['gritsos.user'][:username]
-          env['gritsos.user']
+        if username.nil? || current_user == username
+          current_user
         else
           halt 403 if user_level < 1
           find_user username
@@ -127,7 +127,10 @@ module GritsosAPI
     #
     # This call does not require authentication.
 
-    get '/sensor/:id' do
+    get '/sensor/:id' do |id|
+      # - Make sure id is numeric
+      data = fetch_sensor_data id, from: params[:from], upto: params[:to]
+      
       'sensors'
     end
     

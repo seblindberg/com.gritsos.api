@@ -53,8 +53,20 @@ module GritsosAPI
       env['HTTP_TOKEN']
     end
     
+    def current_user
+      env['gritsos.user']
+    end
+    
+    alias user current_user
+    
+    # Access the current user level.
+    
     def user_level
       env['gritsos.user'][:level]
+    end
+    
+    def user_privileged?
+      
     end
     
     # Generates a random token encoded in base64.

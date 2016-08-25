@@ -15,10 +15,12 @@ module GritsosAPI
     # exist with that id.
     
     def fetch_user(id)
-      model(:users)
-        .select(:id, :username, :level)
-        .where(id: id)
-        .first
+      record =
+        model(:users)
+          .select(:id, :username, :level)
+          .where(id: id)
+          .first
+      User.new record
     end
     
     # Find the user with the given username.
@@ -49,7 +51,7 @@ module GritsosAPI
       # should, but just to be safe we check.
       record[:token] = create_token record[:id] unless record[:token]
       
-      record
+      User.new record
     end
     
     # Create a new user in the database. This method will halt if an error
@@ -90,12 +92,11 @@ module GritsosAPI
         })
       end
       
-      {
-        id: id,
-        username: username,
-        token: token,
-        level: level,
-      }
+      User.new id: id,
+               username: username,
+               token: token,
+               level: level
+    
     rescue Sequel::UniqueConstraintViolation => e
       halt 409, e.message # Conflict
     end
@@ -108,11 +109,14 @@ module GritsosAPI
     # requested user.
     
     def find_user_with_token(token)
-      model(:users)
-        .join(:tokens, :users__id => :tokens__user_id)
-        .select(:users__id___id, :username, :token, :level)
-        .where(token: token)
-        .first
+      record =
+        model(:users)
+          .join(:tokens, :users__id => :tokens__user_id)
+          .select(:users__id___id, :username, :token, :level)
+          .where(token: token)
+          .first
+
+      User.new record
     end
     
     # Find the token used by the user with the given id.
