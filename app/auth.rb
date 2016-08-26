@@ -30,8 +30,8 @@ module GritsosAPI
           halt 400, 'A token or password is required for authentication'
         end
 
-      halt 401 unless user                  # Unauthorized
-      halt 403 unless level <= user[:level] # Forbidden
+      halt 401 unless user             # Unauthorized
+      halt 403 unless user.privileged? # Forbidden
       
       env['gritsos.user'] = user
     end
@@ -58,17 +58,7 @@ module GritsosAPI
     end
     
     alias user current_user
-    
-    # Access the current user level.
-    
-    def user_level
-      env['gritsos.user'][:level]
-    end
-    
-    def user_privileged?
-      
-    end
-    
+        
     # Generates a random token encoded in base64.
     #
     # Returns a 48 character string of random letters within the base64 charset.

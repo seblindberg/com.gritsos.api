@@ -43,7 +43,7 @@ module GritsosAPI
       return unless record
       
       # Make sure we don't leak the password to the caller
-      stored_pwd = record.delete :password
+      stored_pwd = record[:password]
       
       return unless BCrypt::Password.new(stored_pwd) == password if password
       
@@ -94,6 +94,7 @@ module GritsosAPI
       
       User.new id: id,
                username: username,
+               password: hashed_password,
                token: token,
                level: level
     
@@ -112,7 +113,7 @@ module GritsosAPI
       record =
         model(:users)
           .join(:tokens, :users__id => :tokens__user_id)
-          .select(:users__id___id, :username, :token, :level)
+          .select(:users__id___id, :username, :password, :token, :level)
           .where(token: token)
           .first
 

@@ -4,10 +4,17 @@ module GritsosAPI
   class User
     # Create a new user.
     #
-    # user - a hash of user
+    # user - a hash of user.
     
     def initialize(user = nil)
-      @user = user && user.dup
+      if user.nil?
+        @privileged = false
+        @user = nil
+      else
+        p user[:password]
+        @privileged = !user.delete(:password).nil?
+        @user = user.dup
+      end
     end
     
     # By implementing #nil? the User class may represent the nil user. A nil, or
@@ -54,6 +61,10 @@ module GritsosAPI
       self[:token]
     end
     
+    def privileged?
+      @privileged
+    end
+    
     # Compare a user with another. Two users are considered equal if their
     # usernames match.
     #
@@ -72,11 +83,11 @@ module GritsosAPI
     #
     # Returns a string.
     
-    def to_json
+    def to_json(*args)
       {
         username: self[:username],
         token: self[:token]
-      }.to_json
+      }.to_json(*args)
     end
   end
 end

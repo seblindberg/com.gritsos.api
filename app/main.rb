@@ -80,12 +80,11 @@ module GritsosAPI
         if username.nil? || current_user == username
           current_user
         else
-          halt 403 if user_level < 1
+          halt 403 unless current_user.privileged?
           find_user username
         end
       
       halt 404 unless user # Not found
-      halt 403 unless user[:level] <= user_level # Forbidden
       
       json user
     end
@@ -99,10 +98,9 @@ module GritsosAPI
       
       halt 400 unless params['username'] # Bad request
       
-      level = params['level'] || 0
-      halt 403 unless level <= user_level # Forbidden
+      halt 403 unless current_user.privileged? # Forbidden
       
-      user = create_user(params['username'], params['password'], level)
+      user = create_user(params['username'], params['password'], 0)
       
       halt 500 unless user # Internal Server Error
       
@@ -115,12 +113,16 @@ module GritsosAPI
     
     get '/devices' do
       authenticate!
+      
+      'devices'
     end
     
     # Get a list of all sensors that are available through devices.
     
     get '/sensors' do
       authenticate!
+      
+      'sensors'
     end
     
     # Access sensor readings.
@@ -129,9 +131,9 @@ module GritsosAPI
 
     get '/sensor/:id' do |id|
       # - Make sure id is numeric
-      data = fetch_sensor_data id, from: params[:from], upto: params[:to]
+      # data = fetch_sensor_data id, from: params[:from], upto: params[:to]
       
-      'sensors'
+      'sensor'
     end
     
     # Post new sensor readings.
